@@ -1,12 +1,16 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import TaskList from "./TaskList";
 
 export const TaskForm = () => {
 	// 🧠 1. Create state variables to store input values
 	const [title, setTitle] = useState("");
 	const [description, setDescription] = useState("");
-	const [tasks, setTasks] = useState([]);
+	const [tasks, setTasks] = useState([
+		{ title, description, completed: false },
+	]);
 	const [editingTaskIndex, setEditingTaskIndex] = useState(null);
+	const [isLoaded, setIsLoaded] = useState(false); // 👈 guard flag
+	const [showCompleted, setShowCompleted] = useState(false);
 	// Add new task or update existing one
 	const handleSubmit = (e) => {
 		e.preventDefault();
@@ -28,6 +32,21 @@ export const TaskForm = () => {
 		setTitle("");
 		setDescription("");
 	};
+	// 🧠 1️⃣ Load tasks from localStorage (only once)
+	useEffect(() => {
+		const savedTasks = localStorage.getItem("tasks");
+		if (savedTasks) {
+			setTasks(JSON.parse(savedTasks));
+		}
+		setIsLoaded(true); // ✅ mark that loading is done
+	}, []);
+
+	// 🧠 2️⃣ Save tasks whenever they change, but only after initial load
+	useEffect(() => {
+		if (isLoaded) {
+			localStorage.setItem("tasks", JSON.stringify(tasks));
+		}
+	}, [tasks, isLoaded]);
 
 	// Start editing a task
 	const handleEdit = (index) => {
@@ -35,11 +54,26 @@ export const TaskForm = () => {
 		setTitle(tasks[index].title);
 		setDescription(tasks[index].description);
 	};
-
-	const deleteTask = (index) =>{
-		const filtredTasks = tasks.filter((_,i) => i !== index )
+	// delete task
+	const deleteTask = (index) => {
+		const filtredTasks = tasks.filter((_, i) => i !== index);
 		setTasks(filtredTasks);
-	}
+	};
+
+	// 🧹 clear all tasks button
+	const clearAllTasks = () => {
+		if (window.confirm("Are you sure you want to clear all tasks?")) {
+			setTasks([]);
+			localStorage.removeItem("tasks");
+		}
+	};
+	// styling to highlight active and completed tasks
+	const completeTask = (index) => {
+		const completedTasks = tasks.map((t, i) =>
+			i === index ? { ...t, completed: !t.completed } : t
+		);
+		setTasks(completedTasks);
+	};
 
 	return (
 		<div>
@@ -121,8 +155,38 @@ export const TaskForm = () => {
 						{editingTaskIndex !== null ? "Update Task" : "Add Task"}
 					</button>
 				</form>
-				<TaskList tasks={tasks} onEdit={handleEdit} deleteTask={deleteTask}/>
+				<div>
+					<label>
+						<input
+							type="checkbox"
+							checked={showCompleted}
+							onChange={(e) => setShowCompleted(e.target.checked)}
+						/>
+						Show Completed Tasks Only
+					</label>
+				</div>
+				<TaskList
+					tasks={showCompleted ? tasks.filter((t) => t.completed) : tasks}
+					onEdit={handleEdit}
+					deleteTask={deleteTask}
+					completeTask={completeTask}
+				/>
 			</div>
+			{tasks.length > 1 && (
+				<button
+					onClick={clearAllTasks}
+					style={{
+						marginTop: "20px",
+						padding: "10px",
+						borderRadius: "8px",
+						backgroundColor: "#E74C3C",
+						color: "#fff",
+						border: "none",
+						cursor: "pointer",
+					}}>
+					Clear All Tasks 🗑️
+				</button>
+			)}
 		</div>
 	);
 };

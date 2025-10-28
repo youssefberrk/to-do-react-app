@@ -1,6 +1,13 @@
 import React from "react";
 import TaskItem from "./TaskItem";
 
+/**
+ * TaskList Component
+ * -------------------
+ * - Receives tasks and maps them into TaskItem components.
+ * - Acts as a middle layer between TaskForm and TaskItem.
+ */
+
 const TaskList = ({ tasks, onEdit, deleteTask, completeTask }) => {
 	return (
 		<div

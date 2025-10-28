@@ -1,10 +1,15 @@
 import React from "react";
 
+/**
+ * TaskItem Component
+ * -------------------
+ * - Displays a single task with options to edit, delete, or mark complete.
+ * - Visual feedback: completed tasks have a line-through style.
+ */
+
 const TaskItem = ({ task, index, onEdit, deleteTask, completeTask }) => {
 	return (
 		<>
-			
-
 			<li
 				style={{
 					display: "flex",
@@ -29,7 +34,12 @@ const TaskItem = ({ task, index, onEdit, deleteTask, completeTask }) => {
 					<h2>{task.title}</h2>
 					{task.description}
 				</div>
-
+				<small>
+					📅 Due:{" "}
+					{task.dueDate
+						? `${task.dueDate}${task.dueTime ? ` at ${task.dueTime}` : ""}`
+						: "No deadline"}
+				</small>
 				<div
 					style={{
 						display: "flex",

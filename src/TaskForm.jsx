@@ -1,6 +1,13 @@
 import React, { useEffect, useState } from "react";
 import TaskList from "./TaskList";
 
+/**
+ * TaskForm Component
+ * -------------------
+ * - Handles creating, editing, and saving tasks.
+ * - Stores tasks in localStorage so they persist between sessions.
+ * - Passes tasks and handler functions to TaskList for display.
+ */
 export const TaskForm = () => {
 	// 🧠 1. Create state variables to store input values
 	const [title, setTitle] = useState("");
@@ -8,6 +15,8 @@ export const TaskForm = () => {
 	const [tasks, setTasks] = useState([
 		{ title, description, completed: false },
 	]);
+	const [dueDate, setDueDate] = useState("");
+	const [dueTime, setDueTime] = useState("");
 	const [editingTaskIndex, setEditingTaskIndex] = useState(null);
 	const [isLoaded, setIsLoaded] = useState(false); // 👈 guard flag
 	const [showCompleted, setShowCompleted] = useState(false);
@@ -20,17 +29,28 @@ export const TaskForm = () => {
 		if (editingTaskIndex !== null) {
 			// Update task
 			const updatedTasks = [...tasks];
-			updatedTasks[editingTaskIndex] = { title, description };
+			updatedTasks[editingTaskIndex] = {
+				...updatedTasks[editingTaskIndex],
+				title,
+				description,
+				dueDate,
+				dueTime,
+			};
 			setTasks(updatedTasks);
 			setEditingTaskIndex(null); // Exit editing mode
 		} else {
 			// Add new task
-			setTasks([...tasks, { title, description }]);
+			setTasks([
+				...tasks,
+				{ title, description, dueDate, dueTime, completed: false },
+			]);
 		}
 
 		// Clear form
 		setTitle("");
 		setDescription("");
+		setDueDate("");
+		setDueTime("");
 	};
 	// 🧠 1️⃣ Load tasks from localStorage (only once)
 	useEffect(() => {
@@ -53,6 +73,8 @@ export const TaskForm = () => {
 		setEditingTaskIndex(index);
 		setTitle(tasks[index].title);
 		setDescription(tasks[index].description);
+		setDueDate(tasks[index].dueDate);
+		setDueTime(tasks[index].dueTime);
 	};
 	// delete task
 	const deleteTask = (index) => {
@@ -139,6 +161,35 @@ export const TaskForm = () => {
 							fontSize: "16px",
 							resize: "vertical",
 						}}></textarea>
+
+					<label htmlFor="dueDate">Due Date:</label>
+					<input
+						type="date"
+						id="dueDate"
+						name="dueDate"
+						value={dueDate}
+						onChange={(e) => setDueDate(e.target.value)}
+						style={{
+							fontSize: "1rem",
+							padding: "8px",
+							borderRadius: "8px",
+							border: "1px solid #ccc",
+						}}
+						required
+					/>
+					<label>Due Time:</label>
+					<input
+						type="time"
+						value={dueTime}
+						onChange={(e) => setDueTime(e.target.value)}
+						style={{
+							fontSize: "1rem",
+							padding: "8px",
+							borderRadius: "8px",
+							border: "1px solid #ccc",
+						}}
+						required
+					/>
 
 					<button
 						type="submit"
